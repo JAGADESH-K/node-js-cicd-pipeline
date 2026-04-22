@@ -4,7 +4,7 @@
     "containerDefinitions": [
         {
             "name": "my-node-app",
-            "image": "565393037345.dkr.ecr.us-east-1.amazonaws.com/my-node-app:latest",
+            "image": "565393037345.dkr.ecr.ap-south-1.amazonaws.com/my-node-app:latest",
             "cpu": 256,
             "memory": 512,
             "essential": true,
@@ -20,7 +20,8 @@
                 "options": {
                     "awslogs-group": "/ecs/node-app",
                     "awslogs-region": "ap-south-1",
-                    "awslogs-stream-prefix": "ecs"
+                    "awslogs-stream-prefix": "ecs",
+		    "awslogs-create-group": "true"
                 }
             }
         }
