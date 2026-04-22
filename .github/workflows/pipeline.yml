@@ -85,18 +85,7 @@ jobs:
           server_port: 465
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          notify:
-    needs: [quality-and-security, build-and-deploy]
-    runs-on: ubuntu-latest
-    if: always()
-    steps:
-      - name: Send Email Notification
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 465
-          username: ${{ secrets.MAIL_USERNAME }}
-          password: ${{ secrets.MAIL_PASSWORD }}
+          # Dynamic Subject using Ternary Logic
           subject: |
             ${{ (needs.quality-and-security.result == 'success' && needs.build-and-deploy.result == 'success') 
                 && 'Pipeline Success: All Stages Passed!' 
