@@ -1,0 +1,35 @@
+{
+    "family": "node-app-task",
+    "networkMode": "awsvpc",
+    "containerDefinitions": [
+        {
+            "name": "my-node-app",
+            "image": "565393037345.dkr.ecr.us-east-1.amazonaws.com/my-node-app:latest",
+            "cpu": 256,
+            "memory": 512,
+            "essential": true,
+            "portMappings": [
+                {
+                    "containerPort": 3000,
+                    "hostPort": 3000,
+                    "protocol": "tcp"
+                }
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/node-app",
+                    "awslogs-region": "ap-south-1",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            }
+        }
+    ],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "256",
+    "memory": "512",
+    "executionRoleArn": "arn:aws:iam::565393037345:role/ecsTaskExecutionRole",
+    "taskRoleArn": "arn:aws:iam::565393037345:role/ecsTaskExecutionRole"
+}
