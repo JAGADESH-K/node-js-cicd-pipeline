@@ -1,5 +1,5 @@
 # Use official Node.js light image
-FROM node:20-slim
+FROM node:24-slim
 
 # Set working directory
 WORKDIR /usr/src/app
