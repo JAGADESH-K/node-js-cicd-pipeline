@@ -84,7 +84,7 @@ jobs:
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
           subject: "CI/CD Pipeline: ${{ job.status }}"
-          to: jagadesh.offi@gmail.com
+          to: jagadeshkrish000@gmail.com
           from: GitHub Actions
           body: |
             The pipeline for ${{ github.repository }} has finished.
