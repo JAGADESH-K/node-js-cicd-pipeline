@@ -3,6 +3,8 @@ name: Node.js CI/CD Pipeline
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   quality-and-security:
@@ -16,7 +18,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
 
       - name: Install & Test
@@ -83,10 +85,33 @@ jobs:
           server_port: 465
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "CI/CD Pipeline: ${{ job.status }}"
+          notify:
+    needs: [quality-and-security, build-and-deploy]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Send Email Notification
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: |
+            ${{ (needs.quality-and-security.result == 'success' && needs.build-and-deploy.result == 'success') 
+                && 'Pipeline Success: All Stages Passed!' 
+                || 'Pipeline Failed: Action Required' }}
           to: jagadeshkrish000@gmail.com
           from: GitHub Actions
+          # Dynamic Body content
           body: |
             The pipeline for ${{ github.repository }} has finished.
-            Final Result: ${{ needs.build-and-deploy.result }}
-            View details: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            
+            ---
+            Summary of Stages:
+            - Quality & Security: ${{ needs.quality-and-security.result }}
+            - Build & Deploy: ${{ needs.build-and-deploy.result }}
+            ---
+            
+            View full logs and details here:
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
