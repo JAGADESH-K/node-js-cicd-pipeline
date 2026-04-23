@@ -1,23 +1,28 @@
-# Use official Node.js light image
-FROM node:24-slim
+# Use the specific SHA for Node 24-slim for better immutability
+FROM node:24-slim@sha256:d3916757af2580a6d6d7616616422d3c50000a0684f52f534138e6e52295677c
 
-# Fix: Update OS packages to patch vulnerabilities like dpkg and libcap2
+# Patch OS vulnerabilities (dpkg, libcap2)
 RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y curl && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Set working directory
-WORKDIR /usr/src/app
+# Use non-root user for better security (standard in Node images)
+USER node
+WORKDIR /home/node/app
 
-# Copy package files and install production dependencies
-COPY package*.json ./
+# Copy dependency files first (better layer caching)
+COPY --chown=node:node package*.json ./
 RUN npm install --only=production
 
-# Copy local code to the container
-COPY app.js .
+# Copy application code
+COPY --chown=node:node app.js .
 
-# Expose the port the app runs on
+# Add Healthcheck to help the Target Group
+# This hits your /health route every 30s
+HEALTHCHECK --interval=30s --timeout=3s \
+  CMD curl -f http://localhost:3000/health || exit 1
+
 EXPOSE 3000
 
-# Start the application
 CMD [ "node", "app.js" ]
