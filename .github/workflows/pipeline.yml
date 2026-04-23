@@ -13,7 +13,7 @@ jobs:
       - name: Checkout Source
         uses: actions/checkout@v6
         with:
-          fetch-depth: 0 # Required for SonarQube analysis
+          fetch-depth: 0 
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -39,7 +39,7 @@ jobs:
     needs: quality-and-security
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout Source
         uses: actions/checkout@v6
@@ -56,6 +56,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build and Push Docker Image
+        id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: my-node-app
@@ -65,10 +66,33 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "IMAGE=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_ENV
 
+      - name: Inspect ECR Scan Results
+        run: |
+          echo "Waiting for ECR scan to complete..."
+          sleep 15 
+          
+          VULNS=$(aws ecr describe-image-scan-findings \
+            --repository-name my-node-app \
+            --image-id imageTag=${{ github.sha }} \
+            --query 'imageScanFindings.findingSeverityCounts' \
+            --output json)
+          
+          echo "Scan Results: $VULNS"
+          
+          CRITICAL=$(echo $VULNS | jq '.CRITICAL // 0')
+          HIGH=$(echo $VULNS | jq '.HIGH // 0')
+          
+          if [ "$CRITICAL" -gt 0 ] || [ "$HIGH" -gt 0 ]; then
+            echo "Security Gate Failed: Found $CRITICAL Critical and $HIGH High vulnerabilities."
+            exit 1
+          else
+            echo "Security Gate Passed: No High/Critical vulnerabilities found."
+          fi
+
       - name: Deploy to AWS ECS (Rolling Strategy)
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
-          task-definition: task-definition.json # File must exist in your repo
+          task-definition: task-definition.json
           service: node-app-service
           cluster: production-cluster
           wait-for-service-stability: true
@@ -85,22 +109,19 @@ jobs:
           server_port: 465
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          # Dynamic Subject using Ternary Logic
           subject: |
-            ${{ (needs.quality-and-security.result == 'success' && needs.build-and-deploy.result == 'success') 
-                && 'Pipeline Success: All Stages Passed!' 
+            ${{ (needs.quality-and-security.result == 'success' && needs.build-and-deploy.result == 'success')
+                && 'Pipeline Success: All Stages Passed!'
                 || 'Pipeline Failed: Action Required' }}
           to: jagadeshkrish000@gmail.com
-          from: GitHub Actions
-          # Dynamic Body content
+          from: ${{ secrets.MAIL_USERNAME }}
           body: |
             The pipeline for ${{ github.repository }} has finished.
-            
+
             ---
             Summary of Stages:
             - Quality & Security: ${{ needs.quality-and-security.result }}
             - Build & Deploy: ${{ needs.build-and-deploy.result }}
             ---
-            
-            View full logs and details here:
-            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+            View full logs: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
