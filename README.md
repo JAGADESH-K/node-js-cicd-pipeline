@@ -19,7 +19,7 @@ The system follows a modern cloud-native deployment pattern:
 Before running the pipeline, ensure you have the following configured:
 
 ### 1. Infrastructure
-* **AWS Account:** An active account with an **ECS Cluster** and **ECR Repository** created.
+* **AWS Account:** An active account with an **ECS Cluster with ALB** and **ECR Repository** created.
 * **SonarQube:** An instance (Cloud or Self-hosted) to receive scan results.
 * **Gmail/SMTP:** An account with an "App Password" generated for email notifications.
 
