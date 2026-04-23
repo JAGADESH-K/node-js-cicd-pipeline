@@ -72,7 +72,7 @@ Push your branch or open a **Pull Request** to `main`. This triggers the **Quali
 * If `npm test` or `npm audit` fails, the pipeline stops.
 * Check the SonarQube dashboard for deep code analysis.
 
-### Step 3: Deployment (The Main Merge)
+### Step 3: Build & Deployment (The Main Merge)
 Once the PR is merged into `main`:
 1.  **Build:** A Docker image is built using the GitHub SHA as a unique tag.
 2.  **ECR Scan:** The image is pushed to AWS. The pipeline **waits** for the AWS Inspector scan results.
