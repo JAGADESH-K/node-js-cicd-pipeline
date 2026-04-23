@@ -33,7 +33,7 @@ Navigate to `Settings > Secrets and variables > Actions` and add:
 
 ---
 
-## 🛠 Setup & Local Development
+## Setup & Local Development
 
 ### 1. Clone the repository
 ```bash
