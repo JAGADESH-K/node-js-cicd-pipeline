@@ -11,10 +11,13 @@
   },
   "devDependencies": {
     "jest": "^29.7.0",
-    "jest-sonar-reporter": "^2.0.0",
+    "jest-sonar": "^0.2.16",
     "supertest": "^6.3.3"
   },
   "jest": {
-    "testResultsProcessor": "jest-sonar-reporter"
+    "reporters": [
+    "default",
+    ["jest-sonar", { "outputDirectory": ".", "outputName": "test-report.xml" }]
+  ]
   }
 }
