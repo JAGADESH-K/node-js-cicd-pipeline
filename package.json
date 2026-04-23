@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "jest": "^29.7.0",
+    "jest-sonar-reporter": "^2.0.0",
     "supertest": "^6.3.3"
   }
 }
