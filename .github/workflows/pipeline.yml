@@ -68,7 +68,7 @@ jobs:
 
       - name: Inspect ECR Scan Results
         run: |
-          echo "Waiting for ECR scan to complete..."
+          echo "Waiting for ECR scan to complete...."
           sleep 15 
           
           VULNS=$(aws ecr describe-image-scan-findings \
