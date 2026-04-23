@@ -1,10 +1,8 @@
 # 1. Use 'slim' for a smaller, more secure footprint
-FROM node:24-slim
+FROM node:24-alpine
 
 # 2. Patch OS vulnerabilities found in ECR
-RUN apt-get update && apt-get upgrade -y && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+RUN apk update && apk upgrade --no-cache
 
 # 3. Set working directory
 WORKDIR /usr/src/app
