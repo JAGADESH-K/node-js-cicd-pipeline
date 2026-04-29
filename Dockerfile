@@ -1,4 +1,4 @@
-# 1. Use 'slim' for a smaller, more secure footprint
+# 1. Use 'slim' for a smaller, more secure footprint.
 FROM node:24-alpine
 
 # 2. Patch OS vulnerabilities found in ECR
